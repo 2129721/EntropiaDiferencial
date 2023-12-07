@@ -1,0 +1,2 @@
+# EntropiaDiferencial
+Tarea de Estadisticas.
