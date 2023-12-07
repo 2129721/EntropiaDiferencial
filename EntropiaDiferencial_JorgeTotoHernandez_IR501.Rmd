@@ -1,0 +1,180 @@
+---
+title: "Estadística"
+subtitle: "Aplicaciones de los momentos: entropía diferencial 2"
+author: "Jorge Toto Hernandez"
+date: "13/11/2023"
+output:
+  rmdformats::material:
+    highlight: kate
+    cards: false
+---
+
+
+```{r knitr_init, echo=FALSE, message=FALSE, warning=FALSE}
+library(highcharter)
+```
+
+
+
+# Entropía diferencial
+
+Sea $f(x)$ la densidad de probabilidad de un experimento aleatorio $\mathbb{E}$. Recordemos que la entropía de la función $f(x)$ (llamada entropía diferencial) está dada por la siguiente expresión:
+$$
+h(X) = -\int_{-\infty}^{+\infty}{f(x)\log(f(x))}.
+$$
+
+La entropía diferencial es pues, la entropía de Shannon para distribuciones que corresponden a variables aleatorias continuas, por ejemplo para la variable aleatoria uniforme, como se vió en la tarea pasada, la entropía tiene la siguiente relación densidad-entropía:
+$$
+h(f(x)=\frac{1}{b-a}) = \ln(b-a)
+$$
+
+y por lo tanto se puede notar que para el caso de la distribución uniforme al incrementar la varianza (cuando $a$ incrementa), se incrementa la entropía. La siguiente figura muestra lo anterior.
+
+```{r eval=TRUE}
+a          <- 0
+b          <- seq(2,8, length=20)               # Variamos b
+entropy    <- log(b-a) 
+hc <- highchart() %>% 
+  hc_add_series(cbind(b,entropy), name="UniformRV_entropy") %>%   hc_add_theme(hc_theme_smpl()) %>% 
+  hc_title(text="Variacion de la entropia con la Varianza") %>%   hc_subtitle(text="Teoria de la informacion") %>%
+  hc_xAxis(title=list(text="Valores de b")) %>%          hc_yAxis(title=list(text="Entropia de la funcion"))
+hc
+
+```
+
+## Ejercicios
+
+Investigar la relación varianza-entropia para las siguientes variables aleatorias continuas:
+
+- Rayleigh:
+La distribución de Rayleigh no tiene una relación directa simple entre la varianza y la entropía. La entropía para la distribución de Rayleigh no se puede expresar de manera sencilla en función de parámetros como la varianza.
+
+- Normal:
+Para la distribución normal, la entropía está completamente determinada por la desviación estándar (raíz cuadrada de la varianza). La expresión para la entropía de una variable aleatoria normal es bien conocida y se puede encontrar en términos de la desviación estándar.
+
+- Exponencial:
+La entropía para la distribución exponencial está determinada por el parámetro de tasa λ. La relación específica con la varianza depende de cómo se defina la varianza para la distribución exponencial. En general, la relación no es tan simple como en el caso de la distribución uniforme.
+
+- Cauchy:
+La distribución de Cauchy no tiene momentos definidos, por lo que no tiene varianza y, por lo tanto, no hay una relación directa entre la varianza y la entropía.
+
+- Laplace:
+La distribución de Laplace tampoco tiene una relación simple entre la varianza y la entropía. La entropía de una distribución de Laplace se puede expresar en términos de su parámetro de escala, pero no de manera directa en términos de la varianza.
+
+- Logística:
+Similar a la distribución de Laplace, la relación entre la varianza y la entropía para la distribución logística no es simple y generalmente se expresa en términos de su parámetro de escala.
+
+- Triangular:
+La distribución triangular es un caso interesante. La entropía de la distribución triangular puede depender de la forma específica de la distribución y de cómo se elijan sus parámetros. Respecto a la pregunta sobre la relación entre la moda y la entropía, en general, no hay una relación directa entre la moda y la entropía. La entropía está más relacionada con la dispersión y la forma de la distribución.
+
+En resumen, la relación entre la varianza y la entropía varía según la distribución de probabilidad específica. Para algunas distribuciones, como la normal, la relación es clara, mientras que para otras, como la Cauchy o la triangular, la relación puede ser más compleja o inexistente.
+
+- Para la variable aleatoria triangular, ?Existe una relación entre su moda y su entropía?
+En general, la relación entre la moda y la entropía de una variable aleatoria triangular depende de la posición de la moda en relación con los valores mínimo y máximo. Si la moda está en el centro (entre a y b), la distribución podría ser menos dispersa y tener menor entropía. Si la moda está cerca de a o b, la distribución podría ser más dispersa y tener mayor entropía. La relación exacta dependerá de la parametrización específica de la distribución triangular.
+
+Nota: Para responder adecuadamente los anteriores cuestionamientos es necesario investigar las entropías de las variables aleatorias así como los valores de sus varianzas. De igual forma es necesario conocer el funcionamiento del paquete de `R` llamado `highcharter`.
+
+
+# Entropía de Shannon discreta
+
+La entropía mide el grado de complejidad de una variable aleatoria descrita por medio de su PDF o bién mediante su PMF. Para el caso discreto, la ecuación entrópica de Shannon está dada por:
+$$
+H(p) = -\sum_{k}{p_k \log(p_k)}
+$$
+
+Para la variable aleatoria Binomial, la PMF está dada por:
+$$
+\mbox{Pr}\{X=k\} = {n\choose k} p^k(1-p)^{n-k}
+$$
+y por lo tanto, la relación entre la entropía y la probabilidad $p$ está dada empíricamente como:
+
+```{r eval=TRUE}
+n          <- 20
+x          <- 0:20
+p          <- seq(0,1, length=20)
+entropies  <- numeric(20)
+for(i in 1:length(p))
+{
+  densities     <- dbinom(x,n,p[i])
+  entropies[i]  <- -1*sum(densities*log(densities))
+  
+}
+theoretical <- 0.5*log(2*pi*n*exp(1)*p*(1-p))
+hc <- highchart() %>% 
+  hc_add_series(cbind(p,entropies), name="BinomialRV_empirical") %>%  hc_add_series(cbind(p,theoretical), name="BinomialRV_theoretical") %>%  hc_add_theme(hc_theme_smpl()) %>% 
+  hc_title(text="Variacion de la entropia contra p") %>%   hc_subtitle(text="Teoria de la informacion") %>%
+  hc_xAxis(title=list(text="Valores de probabilidad p")) %>%          hc_yAxis(title=list(text="Entropia de la funcion"))
+hc
+
+```
+
+## Ejercicios
+
+Replicar el mismo procedimiento anterior para las siguientes variables aleatorias discretas:
+
+- Binomial negativa.
+
+```{r}
+# Parámetros generales
+calculate_entropy <- function(pmf) {
+  -sum(pmf * log(pmf), na.rm = TRUE)
+}
+x <- 0:20
+p_values <- seq(0, 1, length = 20)
+n <- 20
+
+# Variable Aleatoria: Binomial Negativa
+neg_binom_entropies <- numeric(length(p_values))
+for (i in seq_along(p_values)) {
+  n_valid <- max(1, round(n)) 
+  p_valid <- pmax(0.01, p_values[i])
+  
+  pmf <- dnbinom(x, size = n_valid, prob = p_valid[i])
+  neg_binom_entropies[i] <- calculate_entropy(pmf)
+}
+
+# Visualización
+hc_neg_binom <- highchart() %>%
+  hc_add_series(cbind(p_values, neg_binom_entropies), name = "Binomial Negativa") %>%
+  hc_add_theme(hc_theme_smpl()) %>%
+  hc_title(text = "Variación de la entropía contra p para Binomial Negativa") %>%
+  hc_subtitle(text = "Teoría de la información") %>%
+  hc_xAxis(title = list(text = "Valores de probabilidad p")) %>%
+  hc_yAxis(title = list(text = "Entropía de la función"))
+
+hc_neg_binom
+
+```
+
+- Geométrica.
+
+```{r}
+# Variable Aleatoria: Geométrica
+calculate_entropy <- function(pmf) {
+  -sum(pmf * log(pmf), na.rm = TRUE)
+}
+p_values <- pmax(0.01, pmin(0.99, p_values))
+geom_entropies <- numeric(length(p_values))
+for (i in seq_along(p_values)) {
+  
+  p_valid <- pmax(0.01, p_values[i])
+  pmf <- dgeom(x, prob = p_valid[i])
+  geom_entropies[i] <- calculate_entropy(pmf)
+}
+
+# Visualización
+hc_geom <- highchart() %>%
+  hc_add_series(cbind(p_values, geom_entropies), name = "Geométrica") %>%
+  hc_add_theme(hc_theme_smpl()) %>%
+  hc_title(text = "Variación de la entropía contra p para Geométrica") %>%
+  hc_subtitle(text = "Teoría de la información") %>%
+  hc_xAxis(title = list(text = "Valores de probabilidad p")) %>%
+  hc_yAxis(title = list(text = "Entropía de la función"))
+
+hc_geom
+
+```
+
+
+- Poisson.
+- Hipergeométrica.
